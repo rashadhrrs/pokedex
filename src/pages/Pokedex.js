@@ -5,7 +5,6 @@ import { Card, CardMedia, CardContent, Typography } from "@material-ui/core";
 import "./Pokedex.css";
 import db from "../firebase";
 
-
 const Pokedex = (props) => {
   const { history } = props;
   const [pokemonData, setPokemonData] = useState([]);
@@ -66,14 +65,16 @@ const Pokedex = (props) => {
   return (
     <>
       <Navbar />
+      <div style={{ margin: "40px" }}>
+        <span style={{ fontSize: "30px", color: "white" }}>
+          Pokemon owned: {myPokemon.length}{" "}
+        </span>
+      </div>
       <div>
         {loading ? (
           <h1 style={{ textAlign: "center" }}>Loading...</h1>
         ) : (
           <>
-          <div style= {{margin: "40px"}}>
-            <span style ={{fontSize: "30px", color: "white"}}>Pokemon owned: {myPokemon.length} </span> 
-          </div>
             <div className="btn">
               <button onClick={prev}>Prev</button>
               <button onClick={next}>Next</button>
@@ -83,16 +84,25 @@ const Pokedex = (props) => {
               {pokemonData.map((pokemon, i) => {
                 return (
                   <Card
-                  key={i}
+                    key={i}
                     style={{ cursor: "pointer" }}
                     onClick={() => history.push(`/pokemon/${pokemon.id}`)}
                   >
                     <CardMedia
                       className="card-media"
                       image={pokemon.sprites.front_default}
-                      style={{ width: "130px", height: "130px", margin: "auto" }}
+                      style={{
+                        width: "130px",
+                        height: "130px",
+                        margin: "auto",
+                      }}
                     />
-                    <CardContent style={{textAlign: "center", textTransform: "capitalize"}}>
+                    <CardContent
+                      style={{
+                        textAlign: "center",
+                        textTransform: "capitalize",
+                      }}
+                    >
                       <Typography>{pokemon.name}</Typography>
                     </CardContent>
                   </Card>

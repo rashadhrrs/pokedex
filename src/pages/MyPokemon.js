@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import "./Pokedex.css";
-import CardMyList from "../components/Card/CardMyList";
+import CardDetail from "../components/Card/CardDetail";
 import db from "../firebase";
 import { Button } from "@material-ui/core";
 import swal from "sweetalert";
@@ -55,12 +55,13 @@ const MyPokemon = () => {
           {pokemonData.map((pokemon, i) => {
             return (
               <div>
-                <CardMyList key={i} pokemon={pokemon} />
+                <CardDetail key={i} pokemon={pokemon} />
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "center",
                     marginTop: "20px",
+                    marginBottom: "30px"
                   }}
                 >
                   <Button

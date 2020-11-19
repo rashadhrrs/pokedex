@@ -1,45 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar/Navbar";
-// /import Card from "../components/Card/Card";
 import { getPokemon, getAllPokemon } from "../services/pokemon";
 import { Card, CardMedia, CardContent, Typography } from "@material-ui/core";
-//import { fade, makeStyles } from "@material-ui/core/styles";
 import "./Pokedex.css";
+import db from "../firebase";
 
-// const useStyles = makeStyles((theme) => ({
-//   pokedexContainer: {
-//     paddingTop: "20px",
-//     paddingLeft: "50px",
-//     paddingRight: "50px",
-//   },
-//   cardMedia: {
-//     margin: "auto",
-//   },
-//   cardContent: {
-//     textAlign: "center",
-//   },
-//   searchContainer: {
-//     display: "flex",
-//     backgroundColor: fade(theme.palette.common.white, 0.15),
-//     paddingLeft: "20px",
-//     paddingRight: "20px",
-//     marginTop: "5px",
-//     marginBottom: "5px",
-//   },
-//   searchIcon: {
-//     alignSelf: "flex-end",
-//     marginBottom: "5px",
-//   },
-//   searchInput: {
-//     width: "200px",
-//     margin: "5px",
-//   },
-// }));
 
 const Pokedex = (props) => {
-  //const classes = useStyles();
   const { history } = props;
   const [pokemonData, setPokemonData] = useState([]);
+  const [myPokemon, setMyPokemon] = useState([]);
   const [nextUrl, setNextUrl] = useState("");
   const [prevUrl, setPrevUrl] = useState("");
   const [loading, setLoading] = useState(true);
@@ -52,9 +22,16 @@ const Pokedex = (props) => {
       setPrevUrl(response.previous);
       await loadPokemon(response.results);
       setLoading(false);
-      console.log(response);
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    db.collection("myPokemon")
+      .get()
+      .then((snapshot) => {
+        setMyPokemon(snapshot.docs.map((doc) => doc.data()));
+      });
   }, []);
 
   const next = async () => {
@@ -94,6 +71,9 @@ const Pokedex = (props) => {
           <h1 style={{ textAlign: "center" }}>Loading...</h1>
         ) : (
           <>
+          <div style= {{margin: "40px"}}>
+            <span style ={{fontSize: "30px", color: "white"}}>Pokemon owned: {myPokemon.length} </span> 
+          </div>
             <div className="btn">
               <button onClick={prev}>Prev</button>
               <button onClick={next}>Next</button>
@@ -101,11 +81,11 @@ const Pokedex = (props) => {
 
             <div className="grid-container">
               {pokemonData.map((pokemon, i) => {
-                console.log(pokemonData);
                 return (
                   <Card
+                  key={i}
                     style={{ cursor: "pointer" }}
-                    onClick={() => history.push(`/${pokemon.id}`)}
+                    onClick={() => history.push(`/pokemon/${pokemon.id}`)}
                   >
                     <CardMedia
                       className="card-media"
@@ -119,19 +99,6 @@ const Pokedex = (props) => {
                 );
               })}
             </div>
-
-            {/* <div className="grid-container">
-              {pokemonData.map((pokemon, i) => {
-                console.log(pokemonData);
-                return (
-                  <Card
-                    key={i}
-                    pokemon={pokemon}
-                    onClick={() => alert("ntapppp")}
-                  />
-                );
-              })}
-            </div> */}
             <div className="btn">
               <button onClick={prev}>Prev</button>
               <button onClick={next}>Next</button>

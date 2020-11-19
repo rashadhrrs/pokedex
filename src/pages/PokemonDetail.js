@@ -1,28 +1,53 @@
-/* eslint-disable jsx-a11y/alt-text */
 import React, { useEffect, useState } from "react";
-import { Typography, Link, CircularProgress, Button } from "@material-ui/core";
+import { Typography, CircularProgress, Button } from "@material-ui/core";
 import Navbar from "../components/Navbar/Navbar";
 import axios from "axios";
 import CardDetail from "../components/Card/CardDetail";
-import { getPokemon, getAllPokemon } from "../services/pokemon";
+import db from "../firebase";
+import swal from "sweetalert";
 
 const PokemonDetail = (props) => {
   const { match, history } = props;
   const { params } = match;
   const { pokemonId } = params;
-  // const initialURL = `https://pokeapi.co/api/v2/pokemon/${pokemonId}/`
-  // const [pokemonData, setPokemonData] = useState([])
   const [pokemon, setPokemon] = useState(undefined);
+  const [nickName, setNickname] = useState("");
+  const [success, setSuccess] = useState(undefined);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     let response = await getAllPokemon(initialURL)
-  //     await loadPokemon(response.results)
-  //     //await load(response.result)
-  //     console.log(pokemonData)
-  //   }
-  //   fetchData();
-  // }, [])
+  const handleRegister = (pokemon) => {
+    db.collection("myPokemon").add({
+      pokemonId: pokemon.id,
+      name: pokemon.name,
+      weight: pokemon.weight,
+      height: pokemon.height,
+      types: pokemon.types,
+      moves: pokemon.moves[0].move.name,
+      image: pokemon.sprites.front_default,
+      nickName: nickName,
+    });
+    swal({
+      title: "Register success!",
+      icon: "success",
+    }).then(() => {
+      history.push("/")
+    })
+  }
+
+  function handleCatch() {
+     const random1 = Math.floor(Math.random() * Math.floor(2));
+    if (random1 === 0) {
+      swal({
+        title: "Good job!",
+        icon: "success",
+      });
+      setSuccess("success");
+    } else {
+      swal({
+        title: "Pokemon runaway!",
+        icon: "error",
+      })
+    }
+  }
 
   useEffect(() => {
     axios
@@ -36,61 +61,40 @@ const PokemonDetail = (props) => {
       });
   }, [pokemonId]);
 
-  // const generatePokemonDetailJSX = (pokemon) => {
-  //   const { name, id, species, height, weight, types, sprites } = pokemon;
-  //   const fullImageUrl = `https://pokeres.bastionbot.org/images/pokemon/${id}.png`;
-  //   const { front_default } = sprites;
-  //   return (
-  //     <>
-  //       <Typography variant="h1">
-  //         {`${id}.`} {(name)}
-  //         <img src={front_default} />
-  //       </Typography>
-  //       <img style={{ width: "300px", height: "300px" }} src={fullImageUrl} />
-  //       <Typography variant="h3">Pokemon Info</Typography>
-  //       <Typography>
-  //         {"Species: "}
-  //         <Link href={species.url}>{species.name} </Link>
-  //       </Typography>
-  //       <Typography>Height: {height} </Typography>
-  //       <Typography>Weight: {weight} </Typography>
-  //       <Typography variant="h6"> Types:</Typography>
-  //       {types.map((typeInfo) => {
-  //         const { type } = typeInfo;
-  //         const { name } = type;
-  //         return <Typography key={name}> {`${name}`}</Typography>;
-  //       })}
-  //     </>
-  //   );
-  // };
-
-  // return (
-  //   <>
-  //     {pokemon === undefined && <CircularProgress />}
-  //     {pokemon !== undefined && pokemon && generatePokemonJSX(pokemon)}
-  //     {pokemon === false && <Typography> Pokemon not found</Typography>}
-
-  //     {pokemon !== undefined && (
-  //       <Button variant="contained" onClick={() => history.push("/")}>
-  //         back to pokedex
-  //       </Button>
-  //     )}
-  //   </>
-  // );
-
   return (
     <>
       <Navbar />
       <div>
         {pokemon === undefined && <CircularProgress />}
         {pokemon !== undefined && pokemon && (
-          <div className="grid-container" style={{ marginTop: "40px" }}>
-            <CardDetail pokemon={pokemon} />
+          <div>
+            <div className="grid-container" style={{ marginTop: "40px" }}>
+              <CardDetail pokemon={pokemon} />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
+              }}
+            >
+              <Button
+                style={{
+                  backgroundColor: "#00FF33",
+                  color: "white",
+                  width: "240px",
+                }}
+                variant="contained"
+                onClick={() => handleCatch(pokemon)}
+              >
+                Catch The Pokemon!
+              </Button>
+            </div>
           </div>
         )}
         {pokemon === false && <Typography> Pokemon not found</Typography>}
       </div>
-      {pokemon !== undefined && (
+      {success !== undefined && (
         <div
           style={{
             display: "flex",
@@ -98,16 +102,19 @@ const PokemonDetail = (props) => {
             marginTop: "20px",
           }}
         >
+          <input
+            style={{ marginRight: "20px" }}
+            onChange={(e) => setNickname(e.target.value)}
+            value= {nickName}
+          />
           <Button
             style={{
               backgroundColor: "#30a7d7",
               color: "white",
-              marginTop: "20px",
             }}
-            variant="contained"
-            onClick={() => history.push("/")}
+            onClick={() => handleRegister(pokemon)}
           >
-            back to pokedex
+            Register to Pokedex
           </Button>
         </div>
       )}
